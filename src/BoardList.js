@@ -1,6 +1,6 @@
 import React from 'react';
 
-const BoardList = ({ posts, handleLogout, setSelectedPost, setShowBoardSave }) => {
+const BoardList = ({ posts, handleLogout, setSelectedPost, setShowBoardSave, isLoggedIn }) => {
   const handlePostClick = (postId) => {
     const post = posts.find((p) => p.board_num === postId);
     setSelectedPost(post);
@@ -9,8 +9,12 @@ const BoardList = ({ posts, handleLogout, setSelectedPost, setShowBoardSave }) =
   return (
     <div>
       <h2>게시물 목록</h2>
-      <button onClick={handleLogout}>로그아웃</button>
-      <button onClick={() => setShowBoardSave(true)}>게시물 등록</button>
+      {isLoggedIn && (
+        <>
+          <button onClick={handleLogout}>로그아웃</button>
+          <button onClick={() => setShowBoardSave(true)}>게시물 등록</button>
+        </>
+      )}
       {posts.length > 0 ? (
         <ul>
           {posts.map((post) => (
