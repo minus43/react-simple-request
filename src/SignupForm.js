@@ -1,11 +1,22 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 
+/**
+ * SignupForm 컴포넌트
+ * 
+ * 기본 회원가입 폼과 카카오톡 간편로그인을 제공함.
+ * 서버 응답에 따라 성공 또는 오류 메시지를 표시함.
+ *
+ * @param {Function} setMessage - 성공 메시지를 표시하는 함수.
+ * @param {Function} setError - 오류 메시지를 표시하는 함수.
+ * @returns {JSX.Element} 회원가입 폼 컴포넌트.
+ */
 const SignupForm = ({ setMessage, setError }) => {
   const [signupUsername, setSignupUsername] = useState('');
   const [signupPassword, setSignupPassword] = useState('');
   const [signupEmail, setSignupEmail] = useState('');
 
+  // 일반 회원가입 처리
   const handleSignup = async (event) => {
     event.preventDefault();
     setError(null);
@@ -39,6 +50,8 @@ const SignupForm = ({ setMessage, setError }) => {
     }
   };
 
+ 
+
   return (
     <form onSubmit={handleSignup}>
       <div>
@@ -54,7 +67,7 @@ const SignupForm = ({ setMessage, setError }) => {
       <div>
         <label htmlFor='signupPassword'>비밀번호:</label>
         <input
-          type='text'
+          type='password'
           id='signupPassword'
           value={signupPassword}
           onChange={(e) => setSignupPassword(e.target.value)}
@@ -64,14 +77,17 @@ const SignupForm = ({ setMessage, setError }) => {
       <div>
         <label htmlFor='signupEmail'>이메일:</label>
         <input
-          type='text'
+          type='email'
           id='signupEmail'
           value={signupEmail}
           onChange={(e) => setSignupEmail(e.target.value)}
           required
         />
       </div>
-      <button type='submit'>회원가입</button>
+      <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
+        <button type='submit'>회원가입</button>
+        
+      </div>
     </form>
   );
 };

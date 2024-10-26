@@ -35,6 +35,25 @@ const LoginForm = ({ setIsLoggedIn, setUserData, setMessage, setError }) => {
     }
   };
 
+
+  const handleKakaoLogin = () => {
+    const currentUrl = window.location.href; // 현재 페이지 URL
+    
+    axios.get(`http://localhost:8181/kakao/signup`, {
+      params: {
+        redirectUri: currentUrl,
+        auto_login: autoLogin
+      }
+    })
+    .then((response) => {
+      window.location.href = response.data.redirectUri;
+    })
+    .catch((error) => {
+      console.error('Kakao login failed:', error);
+    });
+  };
+  
+
   return (
     <form onSubmit={handleLogin}>
       <div>
@@ -68,6 +87,9 @@ const LoginForm = ({ setIsLoggedIn, setUserData, setMessage, setError }) => {
         </label>
       </div>
       <button type='submit'>로그인</button>
+      <button type='button' onClick={handleKakaoLogin}>
+          카카오톡 간편로그인
+        </button>
     </form>
   );
 };
