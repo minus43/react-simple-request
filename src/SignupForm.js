@@ -13,22 +13,45 @@ const SignupForm = ({ setMessage, setError }) => {
   const [nbaTeam, setNbaTeam] = useState('');
   const [vmanTeam, setVmanTeam] = useState('');
   const [vwoTeam, setVwoTeam] = useState('');
+  const [isUsernameUnique, setIsUsernameUnique] = useState(null);
+  const [isEmailUnique, setIsEmailUnique] = useState(null);
 
   const mlbTeams = ["Baltimore Orioles", "Boston Red Sox", "New York Yankees", "Tampa Bay Rays", "Toronto Blue Jays", "Chicago White Sox", "Cleveland Guardians", "Detroit Tigers", "Kansas City Royals", "Minnesota Twins", "Houston Astros", "Los Angeles Angels", "Oakland Athletics", "Seattle Mariners", "Texas Rangers", "Atlanta Braves", "Miami Marlins", "New York Mets", "Philadelphia Phillies", "Washington Nationals", "Chicago Cubs", "Cincinnati Reds", "Milwaukee Brewers", "Pittsburgh Pirates", "St. Louis Cardinals", "Arizona Diamondbacks", "Colorado Rockies", "Los Angeles Dodgers", "San Diego Padres", "San Francisco Giants"];
-
   const kboTeams = ["두산 베어스", "롯데 자이언츠", "삼성 라이온즈", "SSG 랜더스", "키움 히어로즈", "LG 트윈스", "한화 이글스", "NC 다이노스"];
-
   const klTeams = ["전북 현대 모터스", "울산 현대 FC", "FC 서울", "수원 삼성 블루윙즈", "포항 스틸러스"];
-
   const plTeams = ["아스날", "맨체스터 시티", "리버풀", "첼시", "토트넘"];
-
   const kblTeams = ["서울 SK 나이츠", "안양 KGC", "전주 KCC 이지스"];
-
   const nbaTeams = ["Los Angeles Lakers", "Golden State Warriors", "Miami Heat", "Brooklyn Nets"];
-
   const vmanTeams = ["삼성화재 블루팡스", "현대캐피탈 스카이워커스"];
-
   const vwoTeams = ["GS칼텍스 서울 KIXX", "흥국생명 핑크스파이더스"];
+
+  const handleUsernameCheck = async () => {
+    try {
+      const response = await axios.get(`http://localhost:8181/member/valid_id?nick_name=${signupUsername}`);
+      if(response.data==='failed'){
+        setIsUsernameUnique(true)
+      } else{
+        setIsUsernameUnique(false)
+      }
+    } catch (error) {
+      setError('아이디 중복 확인 오류');
+      
+    }
+  };
+
+  const handleEmailCheck = async () => {
+    try {
+      const response = await axios.get(`http://localhost:8181/member/valid_email?email=${signupEmail}`);
+      if(response.data==='failed'){
+        setIsEmailUnique(true)
+      } else{
+        setIsEmailUnique(false)
+      }
+    } catch (error) {
+      setError('이메일 중복 확인 오류');
+
+    }
+  };
 
   const handleSignup = async (event) => {
     event.preventDefault();
@@ -71,6 +94,8 @@ const SignupForm = ({ setMessage, setError }) => {
         setNbaTeam('');
         setVmanTeam('');
         setVwoTeam('');
+        setIsUsernameUnique(null);
+        setIsEmailUnique(null);
       } else {
         setError('회원가입 실패');
       }
@@ -81,18 +106,49 @@ const SignupForm = ({ setMessage, setError }) => {
 
   return (
     <form onSubmit={handleSignup}>
-      {/* Nickname, Password, Email */}
+      {/* Nickname */}
       <div>
         <label>닉네임:</label>
-        <input type="text" value={signupUsername} onChange={(e) => setSignupUsername(e.target.value)} required />
+        <input
+          type="text"
+          value={signupUsername}
+          onChange={(e) => setSignupUsername(e.target.value)}
+          required
+        />
+        <button type="button" onClick={handleUsernameCheck}>중복 확인</button>
+        {isUsernameUnique !==null && (
+          <span>
+            {isUsernameUnique ? '이미 사용 중인 아이디입니다.' : '사용 가능한 아이디입니다.'}
+          </span>
+        )}
       </div>
-      <div>
-        <label>비밀번호:</label>
-        <input type="password" value={signupPassword} onChange={(e) => setSignupPassword(e.target.value)} required />
-      </div>
+
+      {/* Email */}
       <div>
         <label>이메일:</label>
-        <input type="email" value={signupEmail} onChange={(e) => setSignupEmail(e.target.value)} required />
+        <input
+          type="email"
+          value={signupEmail}
+          onChange={(e) => setSignupEmail(e.target.value)}
+          required
+        />
+        <button type="button" onClick={handleEmailCheck}>중복 확인</button>
+        {isEmailUnique !==null && (
+          <span>
+            {isEmailUnique ? '이미 사용 중인 이메일입니다.' : '사용 가능한 이메일입니다.'}
+          </span>
+        )}
+      </div>
+
+      {/* Password */}
+      <div>
+        <label>비밀번호:</label>
+        <input
+          type="password"
+          value={signupPassword}
+          onChange={(e) => setSignupPassword(e.target.value)}
+          required
+        />
       </div>
 
       {/* MLB Team */}
