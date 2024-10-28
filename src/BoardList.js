@@ -1,9 +1,17 @@
-import React from 'react';
+// BoardList.js
+import React, { useState } from 'react';
+import MemberEditForm from './MemberEditForm';
 
-const BoardList = ({ posts, handleLogout, setSelectedPost, setShowBoardSave, isLoggedIn }) => {
+const BoardList = ({ posts, handleLogout, setSelectedPost, setShowBoardSave, isLoggedIn, onUpdateUser }) => {
+  const [showEditForm, setShowEditForm] = useState(false); // 회원정보 수정 폼 표시 여부
+
   const handlePostClick = (postId) => {
     const post = posts.find((p) => p.board_num === postId);
     setSelectedPost(post);
+  };
+
+  const handleEditClick = () => {
+    setShowEditForm(true); // 회원정보 수정 폼 표시
   };
 
   return (
@@ -13,8 +21,17 @@ const BoardList = ({ posts, handleLogout, setSelectedPost, setShowBoardSave, isL
         <>
           <button onClick={handleLogout}>로그아웃</button>
           <button onClick={() => setShowBoardSave(true)}>게시물 등록</button>
+          <button onClick={handleEditClick}>회원정보 수정</button>
         </>
       )}
+
+      {showEditForm && (
+        <MemberEditForm 
+          onUpdateUser={onUpdateUser}
+          onClose={() => setShowEditForm(false)} 
+        />
+      )}
+
       {posts.length > 0 ? (
         <ul>
           {posts.map((post) => (

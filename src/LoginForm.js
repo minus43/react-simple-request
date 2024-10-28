@@ -10,6 +10,9 @@ const LoginForm = ({ setIsLoggedIn, setUserData, setMessage, setError }) => {
     event.preventDefault();
     setError(null);
     setMessage('');
+    
+    // 현재 페이지 URL 저장
+    const currentUrl = window.location.href;
 
     try {
       const response = await axios.post(
@@ -18,6 +21,7 @@ const LoginForm = ({ setIsLoggedIn, setUserData, setMessage, setError }) => {
           nick_name: username,
           password: password,
           auto_login: autoLogin,
+          redirectUri: currentUrl, // 현재 페이지 주소를 redirectUri로 전달
         },
         {
           headers: {
@@ -30,29 +34,31 @@ const LoginForm = ({ setIsLoggedIn, setUserData, setMessage, setError }) => {
       setMessage(response.data);
       setIsLoggedIn(true);
       setUserData({ username });
+
+      // 서버 응답의 redirectUri로 리다이렉트
+      window.location.href = response.data.redirectUri || currentUrl; // 기본 경로를 현재 URL로 설정
     } catch (error) {
       setError(error.response?.data || '로그인 실패');
     }
   };
 
-
   const handleKakaoLogin = () => {
-    const currentUrl = window.location.href; // 현재 페이지 URL
-    
-    axios.get(`http://localhost:8181/kakao/signup`, {
-      params: {
-        redirectUri: currentUrl,
-        auto_login: autoLogin
-      }
-    })
-    .then((response) => {
-      window.location.href = response.data.redirectUri;
-    })
-    .catch((error) => {
-      console.error('Kakao login failed:', error);
-    });
+    const currentUrl = window.location.href;
+
+    axios
+      .get(`http://localhost:8181/kakao/signup`, {
+        params: {
+          redirectUri: currentUrl,
+          auto_login: autoLogin,
+        },
+      })
+      .then((response) => {
+        window.location.href = response.data.redirectUri;
+      })
+      .catch((error) => {
+        console.error('Kakao login failed:', error);
+      });
   };
-  
 
   return (
     <form onSubmit={handleLogin}>
@@ -69,7 +75,7 @@ const LoginForm = ({ setIsLoggedIn, setUserData, setMessage, setError }) => {
       <div>
         <label htmlFor='password'>비밀번호:</label>
         <input
-          type='text'
+          type='text' // 테스트용으로 text 타입 유지
           id='password'
           value={password}
           onChange={(e) => setPassword(e.target.value)}
@@ -88,8 +94,8 @@ const LoginForm = ({ setIsLoggedIn, setUserData, setMessage, setError }) => {
       </div>
       <button type='submit'>로그인</button>
       <button type='button' onClick={handleKakaoLogin}>
-          카카오톡 간편로그인
-        </button>
+        카카오톡 간편로그인
+      </button>
     </form>
   );
 };

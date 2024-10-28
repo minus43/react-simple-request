@@ -28,17 +28,15 @@ const App = () => {
     }
   };
 
-  // 페이지 로드 시 로그인 상태 확인
   const checkLoginStatus = async () => {
     try {
       const response = await axios.get('http://localhost:8181/member/check_login', {
         withCredentials: true,
       });
   
-      // 로그인 상태 확인
       if (response.status === 200 && response.data !== "failed" && response.data.username !== null) {
         setIsLoggedIn(true);
-        setUserData( response.data ); // 사용자 정보 설정
+        setUserData(response.data); // 사용자 정보 설정
         console.log(response.data); // 응답 데이터 로그 출력
       } else {
         setIsLoggedIn(false);
@@ -47,12 +45,12 @@ const App = () => {
       setError('로그인 상태 확인 실패');
     }
   };
-  
 
   useEffect(() => {
     checkLoginStatus(); // 페이지 로드 시 로그인 상태 확인
     fetchPosts(); // 항상 게시물 목록을 불러오기
   }, []);
+  
   useEffect(() => {
     console.log("userData 상태가 업데이트되었습니다:", userData);
   }, [userData]);
@@ -78,11 +76,17 @@ const App = () => {
     }
   };
 
+  // 사용자 정보 업데이트 핸들러
+  const handleUpdateUser = (updatedUserData) => {
+    setUserData(updatedUserData);
+    setMessage('회원정보가 수정되었습니다.');
+  };
+
   return (
     <div>
       {isLoggedIn ? (
         <div style={{ marginBottom: '20px' }}>
-          <p>환영합니다, {userData.username}님!</p>
+          <p>환영합니다, {userData.nick_name}님!</p>
           <button onClick={handleLogout}>로그아웃</button>
           <button onClick={() => setShowBoardSave(true)}>게시물 작성</button>
         </div>
@@ -126,6 +130,8 @@ const App = () => {
           handleLogout={handleLogout}
           setSelectedPost={setSelectedPost}
           setShowBoardSave={setShowBoardSave}
+          isLoggedIn={isLoggedIn}
+          onUpdateUser={handleUpdateUser} // 사용자 정보 업데이트 함수 전달
         />
       )}
     </div>

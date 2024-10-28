@@ -4,14 +4,21 @@ import axios from 'axios';
 const BoardDetail = ({ board, setSelectedPost, fetchPosts }) => {
   const [comments, setComments] = useState([]);
   const [newComment, setNewComment] = useState('');
+  const [likeCount, setLikeCount] = useState(board.good_count);
+  const [isLiked, setIsLiked] = useState(false);
 
-  // 댓글 목록을 가져오는 함수에 useCallback 사용
   const fetchComments = useCallback(async () => {
     try {
       const response = await axios.get(
         `http://localhost:8181/reply/find_all/${board.board_num}`
       );
-      setComments(response.data);
+      // 각 댓글에 좋아요 수와 상태를 추가
+      const commentsWithLikes = response.data.map((comment) => ({
+        ...comment,
+        likeCount: comment.good_count,
+        isLiked: false,
+      }));
+      setComments(commentsWithLikes);
     } catch (error) {
       console.error('댓글 조회 실패:', error);
     }
@@ -21,7 +28,27 @@ const BoardDetail = ({ board, setSelectedPost, fetchPosts }) => {
     fetchComments();
   }, [fetchComments]);
 
-  // 댓글 추가
+  const handleToggleLike = () => {
+    setIsLiked(!isLiked);
+    setLikeCount((prev) => (isLiked ? prev - 1 : prev + 1));
+  };
+
+  const handleToggleCommentLike = (commentId) => {
+    setComments((prevComments) =>
+      prevComments.map((comment) =>
+        comment.reply_num === commentId
+          ? {
+              ...comment,
+              isLiked: !comment.isLiked,
+              likeCount: comment.isLiked
+                ? comment.likeCount - 1
+                : comment.likeCount + 1,
+            }
+          : comment
+      )
+    );
+  };
+
   const handleAddComment = async (event) => {
     event.preventDefault();
     if (!newComment) return;
@@ -40,20 +67,15 @@ const BoardDetail = ({ board, setSelectedPost, fetchPosts }) => {
           withCredentials: true,
         }
       );
-      setNewComment(''); // 입력 필드 초기화
-      fetchComments(); // 댓글 목록 갱신
+      setNewComment('');
+      fetchComments();
       fetchPosts();
     } catch (error) {
       console.error('댓글 추가 실패:', error);
     }
   };
 
-  // 댓글 수정
-  const handleEditComment = async (
-    commentId,
-    currentContent,
-    commentWriter
-  ) => {
+  const handleEditComment = async (commentId, currentContent, commentWriter) => {
     const updatedContent = prompt('댓글 내용을 수정하세요:', currentContent);
     if (!updatedContent) return;
 
@@ -79,13 +101,12 @@ const BoardDetail = ({ board, setSelectedPost, fetchPosts }) => {
     }
   };
 
-  // 댓글 삭제
   const handleDeleteComment = async (commentId) => {
     try {
       await axios.delete(`http://localhost:8181/reply/delete/${commentId}`, {
         withCredentials: true,
       });
-      fetchComments(); // 댓글 목록 갱신
+      fetchComments();
       fetchPosts();
     } catch (error) {
       console.error('댓글 삭제 실패:', error);
@@ -100,7 +121,7 @@ const BoardDetail = ({ board, setSelectedPost, fetchPosts }) => {
       );
       setSelectedPost(null);
       alert('게시물이 삭제되었습니다.');
-      fetchPosts(); // 게시물 삭제 후 목록 갱신
+      fetchPosts();
     } catch (error) {
       alert('게시물 삭제에 실패했습니다.');
     }
@@ -129,14 +150,49 @@ const BoardDetail = ({ board, setSelectedPost, fetchPosts }) => {
 
         if (response.status === 200) {
           alert('게시물이 수정되었습니다.');
-          fetchPosts(); // 게시물 수정 후 목록 갱신
-          setSelectedPost(null); // 수정 후 목록으로 돌아감
+          fetchPosts();
+          setSelectedPost(null);
         } else {
           alert('게시물 수정에 실패했습니다.');
         }
       } catch (error) {
         alert('서버 오류로 인해 게시물 수정에 실패했습니다.');
       }
+    }
+  };
+
+  const handleBack = async () => {
+    try {
+      // 게시물 좋아요 수 & 조회수 업데이트
+      await axios.put(
+        `http://localhost:8181/board/like_view_update/${board.board_num}`,
+        { good_count: likeCount },
+        {
+          headers: {
+            'Content-Type': 'application/json; charset=UTF-8',
+          },
+          withCredentials: true,
+        }
+      );
+
+      // 각 댓글 좋아요 수 업데이트
+      for (const comment of comments) {
+        await axios.put(
+          `http://localhost:8181/reply/like_update/${comment.reply_num}`,
+          { good_count: comment.likeCount },
+          {
+            headers: {
+              'Content-Type': 'application/json; charset=UTF-8',
+            },
+            withCredentials: true,
+          }
+        );
+      }
+
+      fetchPosts();
+      setSelectedPost(null);
+    } catch (error) {
+      console.error('좋아요 업데이트 실패:', error);
     }
   };
 
@@ -150,8 +206,12 @@ const BoardDetail = ({ board, setSelectedPost, fetchPosts }) => {
       <p>작성자: {board.writer}</p>
       <p>작성일: {board.reg_date}</p>
       <p>수정일: {board.mod_date}</p>
-      <p>좋아요 수: {board.good_count}</p>
-      <button onClick={() => setSelectedPost(null)}>뒤로가기</button>
+      <p>좋아요 수: {likeCount}</p>
+      <p>조회수: {board.view_count + 1}</p>
+      <button onClick={handleToggleLike}>
+        {isLiked ? '좋아요 취소' : '좋아요'}
+      </button>
+      <button onClick={handleBack}>뒤로가기</button>
       <button onClick={handleEdit}>수정하기</button>
       <button onClick={handleDelete}>삭제하기</button>
 
@@ -165,15 +225,14 @@ const BoardDetail = ({ board, setSelectedPost, fetchPosts }) => {
               <p>{comment.content}</p>
               <small>
                 작성자: {comment.writer} 작성날짜:{comment.reg_date} 수정날짜:{' '}
-                {comment.mod_date} 좋아요:{comment.good_count}
+                {comment.mod_date} 좋아요: {comment.likeCount}
               </small>
+              <button onClick={() => handleToggleCommentLike(comment.reply_num)}>
+                {comment.isLiked ? '좋아요 취소' : '좋아요'}
+              </button>
               <button
                 onClick={() =>
-                  handleEditComment(
-                    comment.reply_num,
-                    comment.content,
-                    comment.writer
-                  )
+                  handleEditComment(comment.reply_num, comment.content, comment.writer)
                 }
               >
                 수정
