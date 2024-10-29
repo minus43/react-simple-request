@@ -33,7 +33,7 @@ const BoardList = ({
           withCredentials: true, // 쿠키를 함께 전달
         }
       );
-  
+
       if (response.data === 'success') {
         setShowEditForm(true);
         setShowPasswordCheck(false);
@@ -45,7 +45,6 @@ const BoardList = ({
       alert('비밀번호 확인에 실패했습니다.');
     }
   };
-  
 
   return (
     <div>
@@ -82,9 +81,15 @@ const BoardList = ({
         <ul>
           {posts.map((post) => (
             <li key={post.board_num}>
-              <strong>{post.board_num}</strong>: {post.title} : {post.content} :{' '}
-              {post.writer} : {post.reg_date} : {post.mod_date} :{' '}
-              {post.good_count} : {post.reply_count} : {post.view_count}
+              <strong>게시물 번호:</strong> {post.board_num} <br />
+              <strong>제목:</strong> {post.title} <br />
+              <strong>내용:</strong> {post.content} <br />
+              <strong>작성자:</strong> {post.writer} <br />
+              <strong>작성일:</strong> {post.reg_date} <br />
+              <strong>수정일:</strong> {post.mod_date} <br />
+              <strong>좋아요 수:</strong> {post.good_count} <br />
+              <strong>댓글 수:</strong> {post.reply_count} <br />
+              <strong>조회 수:</strong> {post.view_count} <br />
               <button onClick={() => handlePostClick(post.board_num)}>
                 상세보기
               </button>

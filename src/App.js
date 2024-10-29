@@ -85,6 +85,11 @@ const App = () => {
 
   return (
     <div>
+      {isLoggedIn && userData && (
+        <div>
+          <h2>{userData.nick_name}님 안녕하세요!</h2>
+        </div>
+      )}
       {!isLoggedIn && (
         <div>
           <h2>로그인 또는 회원가입</h2>
