@@ -21,6 +21,15 @@ const BoardDetail = ({ board, setSelectedPost, fetchPosts }) => {
         `http://localhost:8181/reply/find_all/${board.board_num}`
       );
       setComments(response.data);
+      // 각 댓글의 좋아요 상태와 좋아요 수 설정
+      const likedStatus = {};
+      const likesCount = {};
+      response.data.forEach((comment) => {
+        likedStatus[comment.reply_num] = comment.liked;
+        likesCount[comment.reply_num] = comment.likeCount;
+      });
+      setLikedComments(likedStatus);
+      setCommentLikes(likesCount);
     } catch (error) {
       console.error('댓글 조회 실패:', error);
     }
@@ -154,7 +163,6 @@ const BoardDetail = ({ board, setSelectedPost, fetchPosts }) => {
       );
       setNewComment('');
       fetchComments();
-      fetchPosts();
     } catch (error) {
       console.error('댓글 추가 실패:', error);
     }
@@ -184,7 +192,6 @@ const BoardDetail = ({ board, setSelectedPost, fetchPosts }) => {
         }
       );
       fetchComments();
-      fetchPosts();
     } catch (error) {
       console.error('댓글 수정 실패:', error);
     }
@@ -196,7 +203,6 @@ const BoardDetail = ({ board, setSelectedPost, fetchPosts }) => {
         withCredentials: true,
       });
       fetchComments();
-      fetchPosts();
     } catch (error) {
       console.error('댓글 삭제 실패:', error);
     }
