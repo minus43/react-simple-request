@@ -15,6 +15,7 @@ const MemberEditForm = ({ onUpdateUser, onClose }) => {
   const [vwoTeam, setVwoTeam] = useState('');
   const [isUsernameUnique, setIsUsernameUnique] = useState(null);
   const [isEmailUnique, setIsEmailUnique] = useState(null);
+  const currentUrl = window.location.href;
   
 
 
@@ -74,7 +75,8 @@ const MemberEditForm = ({ onUpdateUser, onClose }) => {
         kbl_team: kblTeam,
         nba_team: nbaTeam,
         vman_team: vmanTeam,
-        vwo_team: vwoTeam,
+        vwo_team: vwoTeam, 
+        redirectUri: currentUrl, // 현재 페이지 주소를 redirectUri로 전달
       },
       {
         headers: {
@@ -84,6 +86,7 @@ const MemberEditForm = ({ onUpdateUser, onClose }) => {
       });
       
       if (response.status === 200) {
+        window.location.href = response.data.redirectUri || currentUrl;
         alert('회원정보가 수정되었습니다.');
         onUpdateUser(response.data);
         onClose();

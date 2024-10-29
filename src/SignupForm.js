@@ -127,7 +127,7 @@ const SignupForm = ({ setMessage, setError }) => {
       <div>
         <label>이메일:</label>
         <input
-          type="email"
+          type="text"
           value={signupEmail}
           onChange={(e) => setSignupEmail(e.target.value)}
           required
@@ -144,7 +144,7 @@ const SignupForm = ({ setMessage, setError }) => {
       <div>
         <label>비밀번호:</label>
         <input
-          type="password"
+          type="text"
           value={signupPassword}
           onChange={(e) => setSignupPassword(e.target.value)}
           required

@@ -84,7 +84,7 @@ const BoardList = ({
             <li key={post.board_num}>
               <strong>{post.board_num}</strong>: {post.title} : {post.content} :{' '}
               {post.writer} : {post.reg_date} : {post.mod_date} :{' '}
-              {post.good_count} : {post.reply_count}
+              {post.good_count} : {post.reply_count} : {post.view_count}
               <button onClick={() => handlePostClick(post.board_num)}>
                 상세보기
               </button>

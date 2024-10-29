@@ -12,6 +12,7 @@ const App = () => {
   const [posts, setPosts] = useState([]);
   const [selectedPost, setSelectedPost] = useState(null);
   const [showBoardSave, setShowBoardSave] = useState(false);
+  const [showSignupForm, setShowSignupForm] = useState(false);
   const [message, setMessage] = useState('');
   const [error, setError] = useState(null);
 
@@ -84,18 +85,6 @@ const App = () => {
 
   return (
     <div>
-      {isLoggedIn ? (
-        <div style={{ marginBottom: '20px' }}>
-          <p>환영합니다, {userData.nick_name}님!</p>
-          <button onClick={handleLogout}>로그아웃</button>
-          <button onClick={() => setShowBoardSave(true)}>게시물 작성</button>
-        </div>
-      ) : (
-        <div style={{ marginBottom: '20px' }}>
-          <p>로그인하지 않았습니다.</p>
-        </div>
-      )}
-
       {!isLoggedIn && (
         <div>
           <h2>로그인 또는 회원가입</h2>
@@ -107,7 +96,10 @@ const App = () => {
             setMessage={setMessage}
             setError={setError}
           />
-          <SignupForm setMessage={setMessage} setError={setError} />
+          <button onClick={() => setShowSignupForm(!showSignupForm)}>
+            {showSignupForm ? '회원가입 닫기' : '회원가입 열기'}
+          </button>
+          {showSignupForm && <SignupForm setMessage={setMessage} setError={setError} />}
         </div>
       )}
 
